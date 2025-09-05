@@ -9,7 +9,7 @@
 ### Nmap
 En primer lugar hago un escaneo de puertos como de costumbre con el objetivo de identificar los puertos abiertos y los servicios que corren en ellos. No hay más que un servidor HTTP en el puerto 80 así que habrá que echarle un ojo a la página web.
 
-[[source-comment]]
+![[nmapScan]]
 
 ### Nibbleblog
 Nada más aterrizar la página solo nos muestra la página default de Apache2, así que voy a fuzzear en busca de directorios ocultos para ampliar un poco la superficie de ataque. Tras probar un rato de fuzzing y no encontrar nada que pueda suponer un avance, inspecciono el código fuente en busca de información interesante, y me encuentro con este comentario que parece ser un directorio.
