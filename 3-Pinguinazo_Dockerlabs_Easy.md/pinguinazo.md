@@ -26,14 +26,14 @@ OS details: Linux 4.15 - 5.19, OpenWrt 21.02 (Linux 5.4), MikroTik RouterOS 7.2 
 Network Distance: 1 hop
 ```
 Nos encontramos con un servidor HTTP corriendo en el puerto 5000 sobre Werkzeug 3.0.1 y Python 3.12.3, del escaneo nada más salta a la vista, así que vamos a echarle un vistazo a la página web. Nos encontramos con un formulario de registro que pide los siguientes campos: nombre, cumpleaños, email y teléfono.
-![[Screenshot_2025-09-01_18_12_24.png]]
+![Screenshot](./Screenshot_2025-09-01_18_12_24.png)
 El único campo que hace algún cambio relevante es el de nombre, al clicar en Save te redirige a /greet, donde leemos un mensaje que lee Hola *nombre que hemos puesto en el campo*! 
 Con esta información lo que podríamos probar es distintos payloads de XSS o SQLi, mientras tanto dejaré fuzzing trabajando a ver si encuentra alguna ruta interesante.
 ## Explotación
 #### XSS
 Con tan solo probar el segundo payload ya vemos que el formulario es efectivamente vulnerable a XSS, al probar esto `<script>alert(1)</script>` en el campo del nombre, nos salta una alerta del navegador, confirmando la vulnerabilidad.
 Además, el FFUF ha dado con la ruta /console, pero al tratar de acceder a ella nos solicita un PIN que no tenemos.
-![[Screenshot_2025-09-01_18_25_37.png]]
+![Screenshot](./Screenshot_2025-09-01_18_25_37.png)
 #### SSTI
 Después de leer y probar un rato distintas cosas con XSS, finalmente obtengo un error probando payloads de SSTI. Hago las pruebas correspondientes siguiendo las instrucciones de [PayLoadsAllTheThings](https://github.com/swisskyrepo/PayloadsAllTheThings/tree/master/Server%20Side%20Template%20Injection): 
 1. Ponemos en el input que sospechamos vulnerable un payload comodín que hace saltar un error en la mayoría de ocasiones en casi cualquier template engine. `${{>%[%'"}}%\. ` 
