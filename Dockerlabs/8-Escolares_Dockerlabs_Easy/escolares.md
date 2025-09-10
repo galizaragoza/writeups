@@ -9,15 +9,15 @@ Comienzo por escanear con nmap los puertos abiertos para ver que vectores de ata
 ❯ nmap -p 0-65535 --open -T5 -A -sT -Pn -n 172.17.0.2 -oX nmapScan.xml && xsltproc nmapScan.xml -o nmapScan.html && open nmapScan.html &>/dev/null & disown
 ```
 
-![[Ciberseguridad/CTFs/253_septiembre/9-escolares/imgs/nmap.png]]
+![Nmap](./imgs/nmap.png)
 	
 A parte del SSH que hay en el puerto 22, no hay otra cosa que un servidor HTTP expuesto por el puerto 80, así que voy a echarle un vistazo al contenido de la página.
 La página tiene varios enlaces, pero es en su mayoría estática, es la web de una universidad de ciberseguridad, y tiene una serie de rutas como `/alumnado`, `/escolares` o `/carreras`, como digo todas ellas estáticas. La sección de contacto si tiene un formulario con varios inputs de texto que podría ser un vector.
 Inspeccionando el código doy con un comentario que revela una ruta con información relevante.
 
-![[comentario.png]]
+![Comentario](./imgs/comentario.png)
 
-![[profesores.png]]
+![Profesores](./imgs/profesores.png)
 
 El último que se ve en la imagen es el que me interesa, ya que como se puede ver es el admin de wordpress. Al ir a `/wordpress` me  encuentro con una página rota y sin ningún panel de login ni enlace funcional, después de un fuzzeo dentro de `/wordpress` llego a `/wp-login.php`.
 Usando `wpscan` enumero los usuarios que hay en la página.
@@ -40,21 +40,21 @@ Le paso el nombre, nick, fecha de nacimiento y matrícula, y me genera un archiv
 ```
 Esta vez conseguimos dar con la clave generada por el creador de diccionarios.
 
-![[luis-pass.png]]
+![Luis pass](./imgs/luis-pass.png)
 
 Una vez dentro del panel de administrador de WordPress, simplemente voy al plugin File Manager, creo un archivo llamado `shell.php` y voy a revshells.com para utilizar la de PHP de Pentest Monkey.
 Con esto hecho, solo hace falta ponerse en escucha con `nc -nvlp 443` y entonces hacer una solicitud a `escolares.dl/wordpress/shell.php` y ya estamos dentro como `www-data`.
 
-![[www-data.png]]
+![www-data](./imgs/www-data.png)
 
 ### Post explotación
 Lo primero una vez hemos ganado acceso es sanitizar la shell.
 
-![[sanitizar.png]]
+![Sanitizar](./imgs/sanitizar.png)
 
 Nada más empezar a buscar doy con un archivo en `/home` llamado secret.txt, le hago un `cat` y revela una contraseña secreta, podría servir para un login de phpmyadmin que encontré antes en un fuzzeo o quizá para pivotar a otro usuario.
 
-![[secretpass.png]]
+![Secret pass](./imgs/secretpass.png)
 
 Efectivamente, la clave sirve para pivotar al usuario luisillo, puesto que la máquina tiene ssh voy a utilizar las credenciales para conectarme por ahí.
 Una vez autenticado como `luisillo`, pruebo en primer lugar a lanzar un `sudo -l`, y resulta que puedo ejecutar el binario `awk` como root, así que después de una búsqueda rápida en GTFObins el laboratorio queda resuelto.
